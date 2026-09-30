@@ -106,7 +106,25 @@ fn build_node(
                 continue;
             }
 
-            children.push(build_node(&entry_path, entry_name, depth + 1, options)?);
+            let node = build_node(&entry_path, entry_name, depth + 1, options)?;
+
+            if options.dirs_only && matches!(node.kind, NodeKind::File) {
+                continue;
+            }
+
+            if options.files_only
+                && matches!(node.kind, NodeKind::Directory)
+                && node.children.is_empty()
+            {
+                continue;
+            }
+
+            children.push(node);
+        }
+
+        if options.files_only {
+            children
+                .retain(|child| matches!(child.kind, NodeKind::File) || !child.children.is_empty());
         }
 
         children.sort_by(|a, b| match (&a.kind, &b.kind) {
