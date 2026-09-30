@@ -18,7 +18,28 @@ pub struct TreeNode {
 
 pub struct WalkOptions {
     pub max_depth: Option<usize>,
+    pub show_hidden: bool,
+    pub dirs_only: bool,
+    pub files_only: bool,
+    pub extensions: Vec<String>,
+    pub ignore: Vec<String>,
+    pub use_gitignore: bool,
 }
+
+const DEFAULT_IGNORES: &[&str] = &[
+    ".git",
+    "node_modules",
+    ".dart_tool",
+    "build",
+    "dist",
+    "coverage",
+    ".idea",
+    ".vscode",
+    "__pycache__",
+    "bin",
+    "obj",
+    "target",
+];
 
 impl TreeNode {
     fn directory(name: String, path: PathBuf, children: Vec<TreeNode>) -> Self {
@@ -40,21 +61,21 @@ impl TreeNode {
     }
 }
 
-pub fn build_tree(root: &Path, max_depth: Option<usize>) -> io::Result<TreeNode> {
+pub fn build_tree(root: &Path, options: &WalkOptions) -> io::Result<TreeNode> {
     let name = root
         .file_name()
         .and_then(|name| name.to_str())
         .unwrap_or(".")
         .to_owned();
 
-    build_node(root, name, 0, max_depth)
+    build_node(root, name, 0, options)
 }
 
 fn build_node(
     path: &Path,
     name: String,
     depth: usize,
-    max_depth: Option<usize>,
+    options: &WalkOptions,
 ) -> io::Result<TreeNode> {
     let metadata = fs::metadata(path)?;
 
@@ -63,7 +84,10 @@ fn build_node(
     }
 
     if metadata.is_dir() {
-        if max_depth.is_some_and(|max_depth| depth >= max_depth) {
+        if options
+            .max_depth
+            .is_some_and(|max_depth| depth >= max_depth)
+        {
             return Ok(TreeNode::directory(name, path.to_path_buf(), Vec::new()));
         }
 
@@ -72,10 +96,13 @@ fn build_node(
         for entry in fs::read_dir(path)? {
             let entry = entry?;
             let entry_path = entry.path();
-
             let entry_name = entry.file_name().to_string_lossy().into_owned();
 
-            children.push(build_node(&entry_path, entry_name, depth + 1, max_depth)?);
+            if DEFAULT_IGNORES.contains(&entry_name.as_str()) {
+                continue;
+            }
+
+            children.push(build_node(&entry_path, entry_name, depth + 1, options)?);
         }
 
         children.sort_by(|a, b| match (&a.kind, &b.kind) {

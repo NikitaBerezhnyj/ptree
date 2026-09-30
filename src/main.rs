@@ -8,25 +8,24 @@ use clap::Parser;
 
 use crate::cli::Args;
 use crate::renderer::TreeRenderer;
-use crate::tree::build_tree;
+use crate::tree::{WalkOptions, build_tree};
 
 fn main() {
     let args = Args::parse();
 
-    println!("path: {:?}", args.path);
-    println!("depth: {:?}", args.depth);
-    println!("no_gitignore: {}", args.no_gitignore);
-    println!("ignore: {:?}", args.ignore);
-    println!("dirs_only: {}", args.dirs_only);
-    println!("files_only: {}", args.files_only);
-    println!("ext: {:?}", args.ext);
-    println!("hidden: {}", args.hidden);
-    println!("stats: {}", args.stats);
-    println!("format: {:?}", args.format);
-
     let root = args.path.unwrap_or_else(|| PathBuf::from("."));
 
-    let tree = build_tree(&root, args.depth).unwrap_or_else(|error| {
+    let options = WalkOptions {
+        max_depth: args.depth,
+        show_hidden: args.hidden,
+        dirs_only: args.dirs_only,
+        files_only: args.files_only,
+        extensions: args.ext,
+        ignore: args.ignore,
+        use_gitignore: !args.no_gitignore,
+    };
+
+    let tree = build_tree(&root, &options).unwrap_or_else(|error| {
         eprintln!("Error: {error}");
         std::process::exit(1);
     });
