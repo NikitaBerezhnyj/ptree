@@ -30,6 +30,10 @@ fn main() {
         std::process::exit(1);
     });
 
-    let output = TreeRenderer::render(&tree);
-    print!("{output}");
+    let output = if args.stats {
+        TreeRenderer::render_stats(&tree)
+    } else {
+        TreeRenderer::render(&tree)
+    };
+    print!("{}", output);
 }
