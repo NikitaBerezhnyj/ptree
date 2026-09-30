@@ -71,6 +71,16 @@ pub fn build_tree(root: &Path, options: &WalkOptions) -> io::Result<TreeNode> {
     build_node(root, name, 0, options)
 }
 
+fn has_matching_extension(path: &Path, extensions: &[String]) -> bool {
+    path.extension()
+        .and_then(|extension| extension.to_str())
+        .is_some_and(|extension| {
+            extensions
+                .iter()
+                .any(|expected| expected.eq_ignore_ascii_case(extension))
+        })
+}
+
 fn build_node(
     path: &Path,
     name: String,
@@ -125,6 +135,14 @@ fn build_node(
         if options.files_only {
             children
                 .retain(|child| matches!(child.kind, NodeKind::File) || !child.children.is_empty());
+        }
+
+        if !options.extensions.is_empty() {
+            children.retain(|child| {
+                matches!(child.kind, NodeKind::File)
+                    && has_matching_extension(&child.path, &options.extensions)
+                    || matches!(child.kind, NodeKind::Directory) && !child.children.is_empty()
+            });
         }
 
         children.sort_by(|a, b| match (&a.kind, &b.kind) {
