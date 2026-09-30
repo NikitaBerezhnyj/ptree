@@ -98,6 +98,10 @@ fn build_node(
             let entry_path = entry.path();
             let entry_name = entry.file_name().to_string_lossy().into_owned();
 
+            if !options.show_hidden && entry_name.starts_with('.') {
+                continue;
+            }
+
             if DEFAULT_IGNORES.contains(&entry_name.as_str()) {
                 continue;
             }
