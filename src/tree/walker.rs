@@ -19,7 +19,7 @@ const DEFAULT_IGNORES: &[&str] = &[
 ];
 
 pub fn build_tree(root: &Path, options: &WalkOptions) -> io::Result<TreeNode> {
-    let ignore_matcher = IgnoreMatcher::new(&options.ignore);
+    let ignore_matcher = IgnoreMatcher::new(root, &options.ignore, options.use_gitignore);
 
     let name = root
         .file_name()
