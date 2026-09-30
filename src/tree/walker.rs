@@ -1,8 +1,7 @@
+use super::{IgnoreMatcher, NodeKind, TreeNode, WalkOptions};
 use std::fs;
 use std::io;
 use std::path::Path;
-
-use super::{NodeKind, TreeNode, WalkOptions};
 
 const DEFAULT_IGNORES: &[&str] = &[
     ".git",
@@ -20,13 +19,15 @@ const DEFAULT_IGNORES: &[&str] = &[
 ];
 
 pub fn build_tree(root: &Path, options: &WalkOptions) -> io::Result<TreeNode> {
+    let ignore_matcher = IgnoreMatcher::new(&options.ignore);
+
     let name = root
         .file_name()
         .and_then(|name| name.to_str())
         .unwrap_or(".")
         .to_owned();
 
-    build_node(root, name, 0, options)
+    build_node(root, name, 0, options, &ignore_matcher)
 }
 
 fn build_node(
@@ -34,6 +35,7 @@ fn build_node(
     name: String,
     depth: usize,
     options: &WalkOptions,
+    ignore_matcher: &IgnoreMatcher,
 ) -> io::Result<TreeNode> {
     let metadata = fs::metadata(path)?;
 
@@ -64,7 +66,11 @@ fn build_node(
                 continue;
             }
 
-            let node = build_node(&entry_path, entry_name, depth + 1, options)?;
+            if ignore_matcher.is_ignored(&entry_path) {
+                continue;
+            }
+
+            let node = build_node(&entry_path, entry_name, depth + 1, options, ignore_matcher)?;
 
             children.push(node);
         }
