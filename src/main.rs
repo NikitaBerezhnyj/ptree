@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use clap::Parser;
 
 use crate::cli::Args;
-use crate::renderer::TreeRenderer;
+use crate::renderer::Renderer;
 use crate::tree::{WalkOptions, build_tree};
 
 fn main() {
@@ -30,10 +30,7 @@ fn main() {
         std::process::exit(1);
     });
 
-    let output = if args.stats {
-        TreeRenderer::render_stats(&tree)
-    } else {
-        TreeRenderer::render(&tree)
-    };
-    print!("{}", output);
+    let output = Renderer::render(&tree, args.format, args.stats);
+
+    print!("{output}");
 }

@@ -1,12 +1,13 @@
+use serde::Serialize;
 use std::path::PathBuf;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub enum NodeKind {
     Directory,
     File,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct TreeNode {
     pub name: String,
     pub path: PathBuf,
