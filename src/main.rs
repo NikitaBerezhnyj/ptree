@@ -1,5 +1,6 @@
 mod cli;
 mod config;
+mod error;
 mod renderer;
 mod tree;
 
@@ -10,12 +11,15 @@ use clap::Parser;
 
 use crate::cli::Args;
 use crate::config::{Config, Settings};
+use crate::error::{print_error, validate_root};
 use crate::renderer::Renderer;
 use crate::tree::build_tree;
 
 fn main() {
-    if let Err(error) = run(Args::parse()) {
-        eprintln!("Error: {error}");
+    let args = Args::parse();
+
+    if let Err(error) = run(args) {
+        print_error(error);
         std::process::exit(1);
     }
 }
@@ -38,6 +42,8 @@ fn run(args: Args) -> Result<(), Box<dyn Error>> {
     } else {
         Config::default()
     };
+
+    validate_root(&root)?;
 
     let settings = Settings::resolve(&args, config)?;
     let tree = build_tree(&root, &settings.options)?;
