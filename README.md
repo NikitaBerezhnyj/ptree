@@ -130,6 +130,55 @@ ptree --format json
 - `compact` — flat list of project paths.
 - `json` — machine-readable project structure.
 
+### Configuration
+
+Create a default `.ptreerc` configuration file:
+
+```bash
+ptree --init
+```
+
+The file is created in the target directory and is not overwritten if it already exists.
+
+`.ptreerc` uses TOML:
+
+```toml
+depth = 3
+hidden = false
+gitignore = true
+stats = false
+dirs_only = false
+files_only = false
+format = "tree"
+ext = ["rs", "toml"]
+ignore = ["target", "*.generated.rs"]
+```
+
+Available options:
+
+- `depth` — maximum directory depth.
+- `hidden` — show hidden files and directories.
+- `gitignore` — apply `.gitignore` rules.
+- `stats` — show project statistics.
+- `dirs_only` / `files_only` — filter by entry type.
+- `format` — `tree`, `compact`, or `json`.
+- `ext` — file extensions to include.
+- `ignore` — additional ignore patterns.
+
+CLI options take priority over `.ptreerc`. `--ext` replaces the configured list, while `--ignore` adds to it.
+
+By default, ptree searches for `.ptreerc` from the target directory up through its parent directories. Configuration can be disabled with:
+
+```bash
+ptree --no-config
+```
+
+Or loaded from a specific file:
+
+```bash
+ptree --config path/to/.ptreerc
+```
+
 ## License & Community Guidelines
 
 - [MIT License](LICENSE) — project license.
