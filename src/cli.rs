@@ -1,53 +1,64 @@
 use std::path::PathBuf;
 
 use clap::{Parser, ValueEnum};
+use serde::Deserialize;
 
 #[derive(Debug, Parser)]
 #[command(name = "ptree")]
 #[command(about = "Print project structure")]
 pub struct Args {
-    /// Root directory to scan
     pub path: Option<PathBuf>,
 
-    /// Maximum directory depth
     #[arg(short, long)]
     pub depth: Option<usize>,
 
-    /// Ignore .gitignore rules
-    #[arg(long)]
+    #[arg(long, conflicts_with = "gitignore")]
     pub no_gitignore: bool,
 
-    /// Additional ignore patterns
+    #[arg(long)]
+    pub gitignore: bool,
+
     #[arg(long, value_name = "PATTERN")]
     pub ignore: Vec<String>,
 
-    /// Show directories only
     #[arg(long, conflicts_with = "files_only")]
     pub dirs_only: bool,
 
-    /// Show files only
     #[arg(long, conflicts_with = "dirs_only")]
     pub files_only: bool,
 
-    /// Filter files by extension
     #[arg(long, value_name = "EXT", value_delimiter = ',')]
     pub ext: Vec<String>,
 
-    /// Show hidden files and directories
-    #[arg(long)]
+    #[arg(long, conflicts_with = "no_hidden")]
     pub hidden: bool,
 
-    /// Show statistics
     #[arg(long)]
+    pub no_hidden: bool,
+
+    #[arg(long, conflicts_with = "no_stats")]
     pub stats: bool,
 
-    /// Output format
-    #[arg(long, value_enum, default_value_t = OutputFormat::Tree)]
-    pub format: OutputFormat,
+    #[arg(long)]
+    pub no_stats: bool,
+
+    #[arg(long, value_enum)]
+    pub format: Option<OutputFormat>,
+
+    #[arg(long)]
+    pub init: bool,
+
+    #[arg(long, value_name = "FILE", conflicts_with = "no_config")]
+    pub config: Option<PathBuf>,
+
+    #[arg(long)]
+    pub no_config: bool,
 }
 
-#[derive(Debug, Clone, Copy, ValueEnum)]
+#[derive(Debug, Clone, Copy, Default, ValueEnum, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum OutputFormat {
+    #[default]
     Tree,
     Compact,
     Json,
