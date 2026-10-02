@@ -76,7 +76,16 @@ Add custom ignore patterns:
 
 ```bash
 ptree --ignore "*.generated.dart"
-ptree --ignore temp/
+ptree --ignore "*.dart" "*.yaml"
+ptree --ignore "*.dart,*.yaml"
+```
+
+Multiple patterns can be separated by spaces or commas.
+
+When using multiple values, specify `PATH` before `--ignore`:
+
+```bash
+ptree ./my_project --ignore "*.dart" "*.yaml"
 ```
 
 ### Filters
@@ -97,8 +106,11 @@ Filter files by extension:
 
 ```bash
 ptree --ext dart
+ptree --ext dart yaml
 ptree --ext dart,yaml
 ```
+
+Multiple extensions can be separated by spaces or commas.
 
 ### Hidden files
 
@@ -177,6 +189,31 @@ Or loaded from a specific file:
 
 ```bash
 ptree --config path/to/.ptreerc
+```
+
+### Short options
+
+Most frequently used options have short aliases:
+
+| Option         | Short |
+| -------------- | ----- |
+| `--depth`      | `-d`  |
+| `--ignore`     | `-i`  |
+| `--dirs-only`  | `-D`  |
+| `--files-only` | `-f`  |
+| `--ext`        | `-e`  |
+| `--hidden`     | `-H`  |
+| `--stats`      | `-s`  |
+
+For example:
+
+```bash
+ptree -d 3
+ptree -i "*.dart" "*.yaml"
+ptree -f
+ptree -e dart yaml
+ptree -H
+ptree -s
 ```
 
 ## License & Community Guidelines
