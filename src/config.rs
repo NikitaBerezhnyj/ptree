@@ -135,11 +135,14 @@ impl Settings {
             return Err(ConfigError::DirsAndFilesOnly);
         }
 
-        let extensions = if args.ext.is_empty() {
+        let extensions: Vec<String> = if args.ext.is_empty() {
             config.ext
         } else {
             args.ext.clone()
-        };
+        }
+        .into_iter()
+        .map(|e| e.trim_start_matches('.').to_owned())
+        .collect();
 
         let mut ignore = config.ignore;
         ignore.extend(args.ignore.iter().cloned());

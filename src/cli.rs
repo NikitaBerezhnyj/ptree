@@ -15,7 +15,7 @@ pub struct Args {
     pub path: Option<PathBuf>,
 
     /// Limit the depth of the directory tree
-    #[arg(short, long, value_name = "N")]
+    #[arg(short = 'd', long, value_name = "N")]
     pub depth: Option<usize>,
 
     /// Disable .gitignore rules
@@ -26,26 +26,28 @@ pub struct Args {
     #[arg(long, conflicts_with = "no_gitignore")]
     pub gitignore: bool,
 
-    /// Ignore files and directories matching the specified pattern
-    #[arg(long, value_name = "PATTERN")]
+    /// Ignore files and directories matching the given patterns
+    ///
+    /// Accepts several values: `--ignore "*.dart" "*.yaml"` or `--ignore "*.dart,*.yaml"`.
+    #[arg(short = 'i', long, value_name = "PATTERN", num_args = 1.., value_delimiter = ',')]
     pub ignore: Vec<String>,
 
     /// Show directories only
-    #[arg(long, conflicts_with = "files_only")]
+    #[arg(short = 'D', long, conflicts_with = "files_only")]
     pub dirs_only: bool,
 
     /// Show files only
-    #[arg(long, conflicts_with = "dirs_only")]
+    #[arg(short = 'f', long, conflicts_with = "dirs_only")]
     pub files_only: bool,
 
     /// Filter files by extension
     ///
-    /// Multiple extensions can be separated by commas.
-    #[arg(long, value_name = "EXT", value_delimiter = ',')]
+    /// Accepts several values: `--ext dart yaml` or `--ext dart,yaml`.
+    #[arg(short = 'e', long, value_name = "EXT", num_args = 1.., value_delimiter = ',')]
     pub ext: Vec<String>,
 
     /// Show hidden files and directories
-    #[arg(long, conflicts_with = "no_hidden")]
+    #[arg(short = 'H', long, conflicts_with = "no_hidden")]
     pub hidden: bool,
 
     /// Hide hidden files and directories
@@ -53,7 +55,7 @@ pub struct Args {
     pub no_hidden: bool,
 
     /// Show statistics about the scanned project
-    #[arg(long, conflicts_with = "no_stats")]
+    #[arg(short = 's', long, conflicts_with = "no_stats")]
     pub stats: bool,
 
     /// Hide statistics about the scanned project
